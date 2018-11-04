@@ -1,3 +1,7 @@
+#progress:
+#menu is done
+#query is not done
+
 import mysql.connector
 from mysql.connector import (connection)
 from mysql.connector import errorcode
