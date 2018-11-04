@@ -30,8 +30,11 @@ King, Billie 666666604
 King, Ray 666666606
 Select ssn from list : 666666602
 SUPERVISEES
+
 FNAME LNAME SSN
+
 ----------------------------------------
+
 Gerald Small 666666607
 Arnold Head 666666608
 Helga Pataki 666666609
