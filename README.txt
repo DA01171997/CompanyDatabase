@@ -15,3 +15,35 @@ employees who rank in the top 5 in salary and lists them.
 .
 (c) Find the top 5 highest worked employees: In this option, the program finds five
 employees who rank in the top 5 in number of hours worked and lists them.
+
+A sample interaction with the user is shown below (console application):
+
+Enter userid: user1
+Enter password: user1
+QUERY OPTIONS
+(a) Find Supervisees at all levels.
+(b) Find Highest paid workers.
+(c) Find the most worked workers.
+(q) Quit.
+Type in your option: a
+Enter last name of employee : King
+King, Kate 666666602 
+King, Billie 666666604
+King, Ray 666666606
+Select ssn from list : 666666602
+SUPERVISEES
+FNAME LNAME SSN
+----------------------------------------
+Gerald Small 666666607
+Arnold Head 666666608
+Helga Pataki 666666609
+Naveen Drew 666666610
+Carl Reedy 666666611
+Sammy Hall 666666612
+Red Bacher 666666613
+QUERY OPTIONS
+(a) Find Supervisees at all levels.
+(b) Find Highest paid workers.
+(c) Find the most worked workers.
+(q) Quit.
+Type in your option:
