@@ -1,6 +1,7 @@
 #progress:
 #menu is done
-#query is not done
+#part a is done
+#part b c are not done
 
 import mysql.connector
 from mysql.connector import (connection)
@@ -36,56 +37,91 @@ def menuPrompt():
   option = input("Type in your option: ")
   return option
 
-#Query then return superviseefor supervisor
-def queryForAllSupervisees(cursor, supervisorLname):
-  query2 = ("SELECT E.Fname, E.Lname, E.Ssn "  \
-              "FROM EMPLOYEE AS E, EMPLOYEE AS S "  \
-              "WHERE E.Super_ssn = S.Ssn AND S.Lname = '%s'" % supervisorLname)
-  cursor.execute(query2)
-  rows = cursor.fetchall()
-  return rows
-
-#Print all supervisees Fname Lname Ssn 
-def printAllSupervisees(rows,supervisorLname):
-  sLname = supervisorLname.upper()
-  print("FNAME\t\tLNAME\tSSN OF ALL %s'S SUPERVISEE  " % sLname)
-  print("--------------------------------------------------------")
-  for (Fname, Lname, Ssn) in rows:
-    print("{}\t{}\t{} ".format( Fname, Lname, Ssn))
-  print("--------------------------------------------------------")
 
 #Option A 
 def optionA(cnx):
   print("Option a")
   cursor = cnx.cursor()
-
-  #Get supervisor last name
   supervisorLname = input("Please enter supervisor last name: ")
-  query1 = ("SELECT COUNT(E.Fname) " \
-            "FROM EMPLOYEE AS E " \
-            "WHERE E.Lname = '%s'" % supervisorLname)
-  cursor.execute(query1)
-  row = cursor.fetchone()
+  RecursiveSupervisorHierarchy(cursor, supervisorLname, None)
+  cursor.close()
 
+def RecursiveSupervisorHierarchy(cursor, supervisorLname, Ssn = None):
+  #Get supervisor last name
+  sLnameUpper = supervisorLname
+  sLnameUpper.upper()
+  #***Base case if provided with Ssn***
+  if Ssn is not None:
+    query1 = ("SELECT E.Fname, E.Lname, E.Ssn " \
+              "FROM EMPLOYEE AS E " \
+              "WHERE E.Ssn = '%s'" % Ssn)
+  #***Recursive case if provided with Lname***
+  else:
+    query1 = ("SELECT E.Fname, E.Lname, E.Ssn " \
+              "FROM EMPLOYEE AS E " \
+              "WHERE E.Lname = '%s'" % supervisorLname)
+  cursor.execute(query1)
+  row1s = cursor.fetchall()
+  row1sCount = len(row1s)
+
+  #Supervisor doesn't exist
+  if (row1sCount == 0):
+    print("EMPLOYEE %s DOES NOT EXISTS", sLnameUpper)
+  #Multiple supervisor with same Last name
+  elif (row1sCount > 1):
+    print("Multiple supervisor with last name", supervisorLname)
+    for (Fname, Lname, Ssn) in row1s:
+      print( "{}\t{}\t{}\t".format(Fname, Lname, Ssn,))
+    selectedSsn = input("Select Ssn from list: ")
+    RecursiveSupervisorHierarchy(cursor, Lname, selectedSsn)  
   #Fetch supervisee if no 
   #supervisor with same last name
-  if row[0] is 1:
-    
+  elif (row1sCount == 1):
     #print all supervisees
-    rows = queryForAllSupervisees(cursor, supervisorLname)
-    sLname = supervisorLname.upper()
-    printAllSupervisees(rows,supervisorLname)
-    print()
-    print("\tPRINT SUPERVISEES OF %s'S SUPERVISEES" % sLname)
-    print()
-    
-    #print all supervisees's supervisees
-    for (_, Lname,_) in rows:
-      rows2 = queryForAllSupervisees(cursor, Lname)
-      printAllSupervisees(rows2, Lname)
-  #else:
-    
-  cursor.close()
+    row2s = queryForAllSupervisees(cursor, supervisorLname, Ssn)
+    rows2Count = len(row2s) 
+    if rows2Count is 0:
+      print(supervisorLname," has no supervisees")
+    else:
+      printAllSupervisees(row2s, supervisorLname)
+      #print all supervisees's supervisees
+      print("")
+      print("\tPRINT %s SUPERVISEES'S SUPERVISEES" % sLnameUpper)
+      print("")
+      for (_, Lname,Ssn) in row2s:
+        rows3 = queryForAllSupervisees(cursor, Lname, Ssn)
+        rows3Count=len(rows3)
+        if rows3Count is 0:
+          print(Lname," has no supervisees")
+        else:
+          printAllSupervisees(rows3, Lname)
+  
+#Query then return superviseefor supervisor
+def queryForAllSupervisees(cursor, supervisorLname, Ssn):
+  if Ssn is None:
+    query2 = ("SELECT E.Fname, E.Lname, E.Ssn "  \
+                "FROM EMPLOYEE AS E, EMPLOYEE AS S "  \
+                "WHERE E.Super_ssn = S.Ssn AND S.Lname = '%s'" % supervisorLname)
+  else:
+    query2 = ("SELECT E.Fname, E.Lname, E.Ssn "  \
+                "FROM EMPLOYEE AS E, EMPLOYEE AS S "  \
+                "WHERE E.Super_ssn = S.Ssn AND S.Lname = '%s' AND S.Ssn = '%s'" % (supervisorLname, Ssn))
+  cursor.execute(query2)
+  rows = cursor.fetchall()
+  return rows
+
+#Print all supervisees Fname Lname Ssn 
+def printAllSupervisees(rows, supervisorLname):
+  sLnameUpper = supervisorLname
+  sLnameUpper.upper()
+  print("\t\t%s'S SUPERVISEES  " % sLnameUpper)
+  print("FNAME\t\tLNAME\t\tSSN")
+  print("--------------------------------------------------------")
+  for (Fname, Lname, Ssn) in rows:
+    print("{}\t\t{}\t\t{} ".format( Fname, Lname, Ssn))
+  print("--------------------------------------------------------")
+
+
 
 
 
